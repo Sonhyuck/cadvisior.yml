@@ -1,0 +1,35 @@
+version: '3'
+
+services:
+  nginx:
+    image: nginx
+    deploy:
+      replicas: 4
+      placement:
+        constraints: [node.role != manager]
+      restart_policy:
+        condition: on-failure
+        max_attempts: 3
+    environment:
+      SERVICE_PORTS: 80
+    networks:
+      - web
+
+  proxy:
+   image: dockercloud/haproxy
+   depends_on:
+     - nginx
+   volumes:
+     - /var/run/docker.sock:/var/run/docker.sock
+   ports:
+     - 80:80
+   networks:
+     - web
+   deploy:
+     mode: global
+     placement:
+       constraints: [node.role == manager]
+
+networks:
+ web:
+   external: true
