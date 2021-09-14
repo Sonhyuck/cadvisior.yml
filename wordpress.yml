@@ -1,0 +1,36 @@
+version: '3'
+
+services:
+
+  wordpress:
+    image: wordpress
+    restart: always
+    deploy:
+      replicas: 3
+      placement:
+        constraints: [node.role != manager]
+    ports:
+      - 8009:80
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: user1
+      WORDPRESS_DB_PASSWORD: user1
+      WORDPRESS_DB_NAME: wpdb
+    volumes:
+          - wordpress:/var/www/html
+
+  db:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_DATABASE: wpdb
+      MYSQL_USER: user1
+      MYSQL_PASSWORD: user1
+      MYSQL_RANDOM_ROOT_PASSWORD: 1
+    volumes:
+      - db:/var/lib/mysql
+
+volumes:
+  wordpress:
+  db:
+
